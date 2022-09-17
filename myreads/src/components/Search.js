@@ -1,7 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+const api = "https://reactnd-books-api.udacity.com";
+
+let token = localStorage.token;
+
+if (!token) token = localStorage.token = Math.random().toString(36).substring(-8);
+
+  const headers = {
+    Accept: "application/json",
+    Authorization: token,
+  };
+
+
 function Search({search , searchBooks , update}) {
+
+  const [shelf , setShelf] = useState("")
+
+  
+  const get = (bookId) =>
+  fetch(`${api}/books/${bookId}`, { headers })
+    .then((res) => res.json())
+    .then((data) => setShelf(data.book.shelf))
     
   return (
     <>
@@ -31,17 +51,17 @@ function Search({search , searchBooks , update}) {
                                 `url(${searchBook.imageLinks?.thumbnail})`,
                             }}
                           ></div>
-                          <div className="book-shelf-changer">
+                          <div className="book-shelf-changer" onClick={() => get(searchBook.id)}>
                             <select onChange={(e) => update(searchBook , e.target.value)} >
                               <option value="none" disabled>
                                 Move to...
                               </option>
-                              <option  value="currentlyReading">
+                              <option selected={shelf === "currentlyReading"}  value="currentlyReading">
                                 Currently Reading
                               </option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option selected value="none">None</option>
+                              <option selected={shelf === "wantToRead" } value="wantToRead">Want to Read</option>
+                              <option selected={shelf === "read"} value="read">Read</option>
+                              <option selected={shelf === "none"} value="none">None</option>
                             </select>
                           </div>
                         </div>
